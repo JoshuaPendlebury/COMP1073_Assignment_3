@@ -68,7 +68,6 @@ async function requestRandomWord(){
  * @param {object} json 
  */
 function setGameVars(json){
-    console.log(json)
     answerWord = json.word.toUpperCase();
     if("results" in json){
         answerDef = json.results[0].definition;
@@ -104,7 +103,6 @@ function revealChar(guessedChar){
             guessString = replaceAt(guessString, i, guessedChar);
         }
     }
-    console.log(guessString);
     correctLetters.textContent = guessString;
 }
 
@@ -157,9 +155,6 @@ function assembleBlankWord(){
 async function newGame(){
     //Queries the WordsAPI for a random word
     await requestRandomWord();
-    
-    console.log(answerWord);
-    console.log(answerDef);
 
     //Resetting game variables
     playerLives = 6;
@@ -185,16 +180,13 @@ async function newGame(){
             //If statement prevents action if the game is won or lost
             if(gameRunning){
                 let guess = key.value;
-                console.log(guess);
 
                 if (answerWord.toUpperCase().includes(guess)){
                     key.classList.add("correct");
-                    console.log("correct");
                     revealChar(guess);
                 }
                 else{
                     key.classList.add("incorrect");
-                    console.log("incorrect");
                     playerLives --;
                     lifeDisplay.textContent = playerLives;
                 }
@@ -202,11 +194,9 @@ async function newGame(){
                 key.removeEventListener("click", eventHandler);
                 key.addEventListener("click", (e) => e.preventDefault());
                 if(playerLives <= 0){
-                    console.log("Defeat");
                     gameOver();
                 }
                 else if(guessString === answerWord){
-                    console.log("victory")
                     gameWon();
                 }
             }
