@@ -4,6 +4,9 @@
  * 2025-08-04
  */
 
+//---------VARIABLES----------------------------
+
+//API information
 const apiURL = 'https://wordsapiv1.p.rapidapi.com/words/';
 const apiKey = '6318468d40msh3a14004dcdaa38ap181f97jsnd10037ee9706';
 const options = {
@@ -14,25 +17,36 @@ const options = {
 	}
 };
 
+//Defining html output elements
 const correctLetters = document.getElementById("playerGuess");
 const keyboard = document.getElementById("keyboard");
 const lifeDisplay = document.getElementById("lives");
 const definition = document.getElementById("definition");
-const victory = document.getElementById("victory");
+const gameOutput = document.getElementById("victory");
 
+//Defining input buttons (keyboard is created later)
 const newGameBtn = document.getElementById("newGame");
 const definitionBtn = document.getElementById("displayDef");
 
+//All characters the player must guess (anything not here will be given to the player)
 const guessChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+//Global vars to hold API request results
 let answerWord;
 let answerDef = "";
 
+//Global vars to run the Hangman game
 let guessString = "";
 let playerLives = 6;
+let guessableBlanks = 0;
 
 let gameRunning = true;
 
+//---------FUNCTIONS----------------------------
+
+/**
+ * Requests a random word from the WordsAPI
+ */
 async function requestRandomWord(){
     let cURL = `${apiURL}?random=true`;
 
@@ -43,14 +57,24 @@ async function requestRandomWord(){
         })
         .then(json => {
             setGameVars(json);
+        })
+        .catch(function(err) {
+            console.log(`Fetch Error: ${err}`);
         });
 }
 
+/**
+ * Gets word and definition from the json returned by API request
+ * @param {object} json 
+ */
 function setGameVars(json){
     console.log(json)
     answerWord = json.word.toUpperCase();
     if("results" in json){
         answerDef = json.results[0].definition;
+    }
+    else{
+        answerDef = "No definition available";
     }
     
 }
@@ -88,7 +112,7 @@ function revealChar(guessedChar){
  * Displays the answer word's definition
  */
 function displayDefinition(){
-    definition.textContent = answerDef;
+    definition.textContent = `Definition: ${answerDef}`;
 }
 
 /**
@@ -111,32 +135,82 @@ function replaceAt(str, index, char){
     return outStr;
 }
 
-async function newGame(){
-    await requestRandomWord();
-    
-    console.log(answerWord);
-    console.log(answerDef);
-
-    playerLives = 6;
-    guessString = "";
-    gameRunning = true;
-    
+/**
+ * Creates the string with Guessable characters replaced with underscores "_"
+ */
+function assembleBlankWord(){
     for(let char of answerWord){
         if(guessChars.includes(char.toUpperCase())){
             guessString += "_";
+            guessableBlanks ++;
         }
         else{
             guessString += char;
         }
     }
-    correctLetters.textContent = guessString
+    gameOutput.textContent = `Letters: ${guessableBlanks}`
+}
+
+/**
+ * Sets up a new game of Hangman
+ */
+async function newGame(){
+    //Queries the WordsAPI for a random word
+    await requestRandomWord();
+    
+    console.log(answerWord);
+    console.log(answerDef);
+
+    //Resetting game variables
+    playerLives = 6;
+    guessString = "";
+    guessableBlanks = 0;
+    gameRunning = true;
+    
+    assembleBlankWord();
+    
+    //Resetting Html elements
+    correctLetters.textContent = guessString;
     lifeDisplay.textContent = playerLives;
     definition.textContent = "";
-    victory.textContent = "";
 
     allKeys.forEach(function(key) {
         key.classList.remove("correct");
         key.classList.remove("incorrect");
+
+        //Adding event listeners to all player guess keys with anonymous function to handle player turns (Button press)
+        key.addEventListener("click", function eventHandler(e) {
+            e.preventDefault();
+
+            //If statement prevents action if the game is won or lost
+            if(gameRunning){
+                let guess = key.value;
+                console.log(guess);
+
+                if (answerWord.toUpperCase().includes(guess)){
+                    key.classList.add("correct");
+                    console.log("correct");
+                    revealChar(guess);
+                }
+                else{
+                    key.classList.add("incorrect");
+                    console.log("incorrect");
+                    playerLives --;
+                    lifeDisplay.textContent = playerLives;
+                }
+
+                key.removeEventListener("click", eventHandler);
+                key.addEventListener("click", (e) => e.preventDefault());
+                if(playerLives <= 0){
+                    console.log("Defeat");
+                    gameOver();
+                }
+                else if(guessString === answerWord){
+                    console.log("victory")
+                    gameWon();
+                }
+            }
+        });
     });
 }
 
@@ -145,7 +219,7 @@ async function newGame(){
  */
 function gameOver(){
     displayDefinition();
-    victory.textContent = `You Lose! The word was ${answerWord}.` ;
+    gameOutput.textContent = `You Lose! The word was ${answerWord}.` ;
     gameRunning = false;
 }
 
@@ -158,51 +232,22 @@ function gameWon(){
         key.addEventListener("click", (e) => e.preventDefault());
     });
     displayDefinition();
-    victory.textContent = "You Win!";
+    gameOutput.textContent = "You Win!";
     gameRunning = false;
 }
 
-
+//---------STARTUP CODE-----------------------
+//Creates all the players buttons and saves the list of all of them as a const
 const allKeys = assembleKeys();
+//Creates new game on site launch
 newGame();
 
-//Adding event listeners to all player guess keys
-allKeys.forEach(function(key) {
-    key.addEventListener("click", function eventHandler(e) {
-        e.preventDefault();
-
-        if(gameRunning){
-            let guess = key.value;
-            console.log(guess);
-
-            if (answerWord.toUpperCase().includes(guess)){
-                key.classList.add("correct");
-                console.log("correct");
-                revealChar(guess);
-            }
-            else{
-                key.classList.add("incorrect");
-                console.log("incorrect");
-                playerLives --;
-                lifeDisplay.textContent = playerLives;
-            }
-
-            key.removeEventListener("click", eventHandler);
-            key.addEventListener("click", (e) => e.preventDefault());
-            if(playerLives <= 0){
-                console.log("Defeat");
-                gameOver();
-            }
-            else if(guessString === answerWord){
-                console.log("victory")
-                gameWon();
-            }
-        }
-        
-    });
-});
-
+//---------EVENT HANDLERS---------------------
 definitionBtn.addEventListener("click", (e) => {
     e.preventDefault();
     displayDefinition();
 });
+newGameBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    newGame();
+})
