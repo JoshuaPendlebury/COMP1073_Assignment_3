@@ -11,21 +11,22 @@
 <body>
     <main>
 		<h1>Hangman</h1>
-		<div>
-			<p id="playerGuess"></p>
-		</div>
+		<p id="playerGuess"></p>
 		<p id="definition"></p>
-		<p id="victory"></p>
-		<form id="keyboard"></form>
-		<p id="lives"></p>
-
-		<button id="displayDef">Give Definition</button>
-		
-
-		<button id="newGame" value="refresh">New Game</button>
+		<p id="victory" class="ticketStyle"></p>
+		<form id="keyboard" class="ticketStyle"></form>
+		<div id="lifeContainer">
+			<p>Guesses: </p>
+			<p id="lives"></p>
+		</div>
+		<div id="buttonContainer">
+			<button id="displayDef">Give Definition</button>
+			<button id="newGame" value="refresh">New Game</button>
+		</div>
 	</main>
 	<footer>
-		<a href="https://rapidapi.com/dpventures/api/wordsapi/playground/54b863d2e4b0417be3482942">WordsApi Documentation</a>
+		<p>Site by: Joshua Pendlebury</p>
+		<p>WordsApi Documentation: <a href="https://rapidapi.com/dpventures/api/wordsapi/playground/54b863d2e4b0417be3482942">WordsApi Documentation</a></p>
 	</footer>
 </body>
 </html>
