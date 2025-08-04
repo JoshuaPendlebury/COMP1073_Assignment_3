@@ -2,13 +2,30 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Assignment 3 API Call | COMP1073 Client-Side JavaScript</title>
+	<title>Assignment 3 API Call Hangman | COMP1073 Client-Side JavaScript</title>
     <meta name="robots" content="noindex, nofollow">
 	<link href="css/normalize.css" rel="stylesheet">
 	<link href="./css/style.css" rel="stylesheet">
 	<script src="./js/script.js" defer></script>
 </head>
 <body>
-    
+    <main>
+		<h1>Hangman</h1>
+		<div>
+			<p id="playerGuess"></p>
+		</div>
+		<p id="definition"></p>
+		<p id="victory"></p>
+		<form id="keyboard"></form>
+		<p id="lives"></p>
+
+		<button id="displayDef">Give Definition</button>
+		
+
+		<button id="newGame" value="refresh">New Game</button>
+	</main>
+	<footer>
+		<a href="https://rapidapi.com/dpventures/api/wordsapi/playground/54b863d2e4b0417be3482942">WordsApi Documentation</a>
+	</footer>
 </body>
 </html>
